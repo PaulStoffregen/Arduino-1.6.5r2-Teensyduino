@@ -2527,6 +2527,8 @@ public class Editor extends JFrame implements RunnerListener {
     if (BaseNoGui.isTeensyduino()) {
       if (port == null) port = new BoardPort();
       port.setProtocol("teensy"); // causes TeensyMonitor to be used
+      if (BaseNoGui.getBoardPreferences().get("fake_serial") != null)
+        port.setAddress("fake serial");
     }
     if (port == null) {
       statusError(I18n.format("Board at {0} is not available", PreferencesData.get("serial.port")));
