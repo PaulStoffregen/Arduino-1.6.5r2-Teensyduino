@@ -40,10 +40,11 @@ public class TeensyMonitor extends AbstractMonitor {
   private Thread reopener;
   private Thread onlineChecker;
   private boolean isOpen;
+  private final boolean debug = false;
 
   public TeensyMonitor(BoardPort port) {
     super(port);
-    //System.out.println("TeensyMonitor constructor");
+    if (debug) System.out.println("TeensyMonitor constructor");
 
     serialRate = PreferencesData.getInteger("serial.debug_rate");
     serialRates.setSelectedItem(serialRate + " " + _("baud"));
@@ -96,7 +97,7 @@ public class TeensyMonitor extends AbstractMonitor {
   }
 
   public void enableWindow(boolean enable) {
-    //System.out.println("TeensyMonitor enableWindow");
+    if (debug) System.out.println("TeensyMonitor enableWindow");
     super.enableWindow(enable);
   }
 
@@ -105,7 +106,7 @@ public class TeensyMonitor extends AbstractMonitor {
   // called from Editor.java
   public void open() throws Exception {
     String port = getBoardPort().getAddress();
-    //System.out.println("TeensyMonitor open " + port);
+    if (debug) System.out.println("TeensyMonitor open " + port);
     if (Thread.currentThread() != reopener) reopen_abort();
     if (serial != null) return;
     super.open();
@@ -166,7 +167,7 @@ public class TeensyMonitor extends AbstractMonitor {
           }
           if (serial == null) return;
           if (!(serial.isOnline())) {
-            //System.out.println("Serial went offline");
+            if (debug) System.out.println("Serial went offline");
             try {
               close();
               reopen();  // starts reopener thread
@@ -183,14 +184,14 @@ public class TeensyMonitor extends AbstractMonitor {
 
   // called from Editor.java
   public void suspend() throws Exception {
-    //System.out.println("TeensyMonitor suspend");
+    if (debug) System.out.println("TeensyMonitor suspend");
     super.suspend();
   }
 
   // called from Editor.java
   public void resume(BoardPort boardPort) throws Exception {
     // TODO: can boardPort ever try to resume a different port??
-    //System.out.println("TeensyMonitor resume " + boardPort.getAddress());
+    if (debug) System.out.println("TeensyMonitor resume " + boardPort.getAddress());
     //super.resume(boardPort);
 
     if (!isVisible()) return;
@@ -212,7 +213,7 @@ public class TeensyMonitor extends AbstractMonitor {
         int attempt = 0;
         while (true) {  // keep trying as long as the window is visible
           attempt++;
-          //System.out.println("reopener attempt # " + attempt);
+          //if (debug) System.out.println("reopener attempt # " + attempt);
           try {
             sleep((attempt < 50) ? 100 : 500);
           } catch (InterruptedException e) {
@@ -224,6 +225,7 @@ public class TeensyMonitor extends AbstractMonitor {
           } catch (Exception e) {
             // open throws exception if unable to open
           }
+	  //if (debug && attempt > 60) return;
         }
       }
     };
@@ -236,9 +238,15 @@ public class TeensyMonitor extends AbstractMonitor {
     resume(getBoardPort());
   }
 
+  private void interrupt_thread(Thread th) {
+    if (th != null && th != Thread.currentThread() && th.isAlive()) th.interrupt();
+  }
+
   // called from Editor.java
   public void close() throws Exception {
-    //System.out.println("TeensyMonitor close");
+    if (debug) System.out.println("TeensyMonitor close");
+    interrupt_thread(reopener);
+    interrupt_thread(onlineChecker);
     isOpen = false;
     super.close();
     if (serial != null) {
