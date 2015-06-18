@@ -915,6 +915,7 @@
 -->
 
     <!-- cygwin requires html, dll, and exe to have the +x flag -->
+<!--
     <chmod perm="755">
       <fileset dir="windows/work" includes="**/*.html, **/*.dll, **/*.exe" />
     </chmod>
@@ -932,6 +933,7 @@
     <copy todir="${staging_folder}/work/java" includeemptydirs="true" preservelastmodified="true" overwrite="true" failonerror="true">
       <fileset dir="${WINDOWS_BUNDLED_JVM}" includes="*/**"/>
     </copy>
+-->
   </target>
 
   <target name="windows-build-avr-toolchain">
