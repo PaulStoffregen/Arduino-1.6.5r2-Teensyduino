@@ -1266,6 +1266,22 @@ public class Compiler implements MessageConsumer {
     } catch (Exception e) {
       throw new RunnerException(e);
     }
+
+    if (prefs.containsKey("recipe.output.tmp_file2") && prefs.containsKey("recipe.output.save_file2")) {
+      try {
+        String compiledSketch = prefs.getOrExcept("recipe.output.tmp_file2");
+        compiledSketch = StringReplacer.replaceFromMapping(compiledSketch, dict);
+        String copyOfCompiledSketch = prefs.getOrExcept("recipe.output.save_file2");
+        copyOfCompiledSketch = StringReplacer.replaceFromMapping(copyOfCompiledSketch, dict);
+
+        File compiledSketchFile = new File(prefs.get("build.path"), compiledSketch);
+        File copyOfCompiledSketchFile = new File(sketch.getFolder(), copyOfCompiledSketch);
+
+        FileUtils.copyFile(compiledSketchFile, copyOfCompiledSketchFile);
+      } catch (Exception e) {
+        throw new RunnerException(e);
+      }
+    }
   }
   
 
